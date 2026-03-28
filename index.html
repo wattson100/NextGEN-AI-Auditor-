@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextGEN-AI Auditor</title>
+    <script src="https://js.puter.com/v2/"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #e8f5e9; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow-x: hidden; }
+        .wrapper { width: 90%; max-width: 1000px; height: 85vh; background: white; border-radius: 20px; box-shadow: 0 15px 50px rgba(0,0,0,0.1); position: relative; display: flex; overflow: hidden; }
+        
+        /* The Facet Theme Panel */
+        .facet-panel { position: absolute; top: 0; right: 0; width: 40%; height: 100%; background: linear-gradient(135deg, #9ccc65 0%, #388e3c 100%); clip-path: polygon(25% 0, 100% 0, 100% 100%, 0% 100%); z-index: 1; }
+        
+        .content-panel { position: relative; width: 60%; padding: 40px; z-index: 2; display: flex; flex-direction: column; background: white; clip-path: polygon(0 0, 100% 0, 85% 100%, 0% 100%); }
+
+        /* NextGEN-AI Logo Styling */
+        .logo { font-size: 2.8em; font-weight: 800; color: #2e7d32; letter-spacing: -1px; margin: 0; }
+        .logo span { color: #8bc34a; font-weight: 300; }
+        .tagline { color: #689f38; margin-bottom: 20px; font-size: 0.9em; }
+
+        textarea { width: 100%; flex-grow: 1; background: #f9fbe7; border: 2px solid #dcedc8; border-radius: 12px; padding: 15px; font-family: 'Courier New', monospace; color: #1b5e20; resize: none; outline: none; transition: 0.3s; }
+        textarea:focus { border-color: #8bc34a; box-shadow: 0 0 10px rgba(139,195,74,0.2); }
+
+        button { width: 100%; padding: 18px; background: #7cb342; color: white; border: none; border-radius: 12px; font-size: 1.1em; font-weight: bold; margin-top: 15px; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #558b2f; transform: translateY(-2px); }
+
+        #output { margin-top: 15px; padding: 15px; background: #f1f8e9; border-left: 5px solid #8bc34a; border-radius: 4px; display: none; white-space: pre-wrap; color: #1b5e20; font-size: 0.9em; }
+        .loader { display: none; text-align: center; color: #888; margin-top: 10px; font-style: italic; }
+
+        @media (max-width: 768px) {
+            .wrapper { flex-direction: column; height: auto; width: 95%; margin: 20px; }
+            .content-panel { width: 100%; clip-path: none; padding: 25px; }
+            .facet-panel { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <div class="content-panel">
+        <h1 class="logo">NextGEN<span>-AI</span></h1>
+        <p class="tagline">Cloud-Controlled Professional Code Audit</p>
+        
+        <textarea id="codeInput" placeholder="Paste your Python or HTML code here..."></textarea>
+        
+        <button id="auditBtn" onclick="runAudit()">Perform System Audit</button>
+        <div id="loader" class="loader">Fetching remote commands and analyzing...</div>
+        <div id="output"></div>
+    </div>
+    <div class="facet-panel"></div>
+</div>
+
+<script>
+    // REPLACE THIS URL WITH YOUR RAW GIST URL
+    const GIST_URL = 'PASTE_YOUR_RAW_GIST_URL_HERE';
+
+    async function runAudit() {
+        const code = document.getElementById('codeInput').value;
+        const outputDiv = document.getElementById('output');
+        const loader = document.getElementById('loader');
+        
+        if (!code) return alert("Please enter code.");
+
+        loader.style.display = "block";
+        outputDiv.style.display = "none";
+
+        try {
+            // 1. Fetch YOUR command from the Gist
+            const commandResponse = await fetch(GIST_URL);
+            const mySystemCommand = await commandResponse.text();
+
+            // 2. Use that command to run the AI
+            const aiResponse = await puter.ai.chat(
+                mySystemCommand + "\n\nUser Code:\n" + code,
+                { model: 'claude-3-5-sonnet' }
+            );
+
+            outputDiv.innerText = aiResponse.message.content;
+            outputDiv.style.display = "block";
+        } catch (e) {
+            outputDiv.innerText = "Error syncing with Control Center: " + e.message;
+            outputDiv.style.display = "block";
+        } finally {
+            loader.style.display = "none";
+        }
+    }
+</script>
+</body>
+</html>
